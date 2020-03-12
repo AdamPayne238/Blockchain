@@ -2,8 +2,10 @@ import hashlib
 import json
 from time import time
 from uuid import uuid4
-
+import miner
 from flask import Flask, jsonify, request
+
+my_coins = 0
 
 
 class Blockchain(object):
@@ -16,7 +18,6 @@ class Blockchain(object):
 
     def new_block(self, proof, previous_hash=None):
         block = {
-            # TODO
             'index': len(self.chain) + 1,
             'timestamp': time(),
             'transactions': self.current_transactions,
@@ -32,15 +33,12 @@ class Blockchain(object):
         return block
 
     def hash(self, block):
-        # TODO: Create the block_string
         string_block = json.dumps(block, sort_keys=True)
 
-        # TODO: Hash this string using sha256
         raw_hash = hashlib.sha256(string_block.encode())
 
         hex_hash = raw_hash.hexdigest()
 
-        # TODO: Return the hashed block string in hexadecimal format
         return hex_hash
 
     @property
@@ -63,7 +61,7 @@ class Blockchain(object):
         guess = f'{block_string}{proof}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         # return True or False
-        return guess_hash[:3] == "000"
+        return guess_hash[:6] == "000000"
 
 
 # Instantiate our Node
@@ -78,10 +76,33 @@ blockchain = Blockchain()
 
 @app.route('/mine', methods=['POST'])
 def mine():
-
+    global my_coins
+    data = request.get_json()
     # Run the proof of work algorithm to get the next proof
     # proof = blockchain.proof_of_work(blockchain.last_block)
 
+    proof = data['proof']
+    miner_id = data['id']
+
+    previous_hash = blockchain.hash(blockchain.last_block)
+
+    if 'proof' and 'id':
+        print(proof)
+        if blockchain.valid_proof(previous_hash, proof):
+            block = blockchain.new_block(proof, previous_hash)
+            my_coins += 1
+            response = {
+                'new_block': block,
+                'message': f'You generated a new block! Current Coins: {my_coins}'
+            }
+            return jsonify(response), 200
+
+    response = {
+        'message': f'Proof is not valid!'
+    }
+    return jsonify(response), 400
+
+    """
     data = request.get_json()
     proof = data['proof']
 
@@ -98,6 +119,7 @@ def mine():
     }
 
     return jsonify(response), 200
+    """
 
 
 @app.route('/chain', methods=['GET'])
