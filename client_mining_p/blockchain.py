@@ -81,24 +81,26 @@ def mine():
     # Run the proof of work algorithm to get the next proof
     # proof = blockchain.proof_of_work(blockchain.last_block)
 
-    proof = data['proof']
+
     miner_id = data['id']
 
+    block_string = json.dumps(blockchain.last_block)
     previous_hash = blockchain.hash(blockchain.last_block)
+    proof = miner.proof_of_work(block_string)
 
-    if 'proof' and 'id':
+    if 'proof' in data and 'id' in data:
         print(proof)
-        if blockchain.valid_proof(previous_hash, proof):
+        if blockchain.valid_proof(block_string, proof):
             block = blockchain.new_block(proof, previous_hash)
             my_coins += 1
             response = {
                 'new_block': block,
-                'message': f'You generated a new block! Current Coins: {my_coins}'
+                'message': f'You generated a new block! Coins: {my_coins}'
             }
             return jsonify(response), 200
 
     response = {
-        'message': f'Proof is not valid!'
+        'message': f'Proof is not valid! Coins: {my_coins}'
     }
     return jsonify(response), 400
 
