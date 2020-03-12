@@ -1,6 +1,5 @@
 import hashlib
 import requests
-
 import sys
 import json
 
@@ -13,11 +12,9 @@ def proof_of_work(block_string):
     in an effort to find a number that is a valid proof
     :return: A valid proof for the provided block
     """
-
     proof = 0
     while valid_proof(block_string, proof) is False:
         proof += 1
-    # return proof
     return proof
 
 
@@ -34,7 +31,6 @@ def valid_proof(block_string, proof):
     """
     guess = f'{block_string}{proof}'.encode()
     guess_hash = hashlib.sha256(guess).hexdigest()
-    # return True or False
     return guess_hash[:6] == "000000"
 
 

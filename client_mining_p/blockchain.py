@@ -45,17 +45,6 @@ class Blockchain(object):
     def last_block(self):
         return self.chain[-1]
 
-    # REMOVE PROOF OF WORK FUNCTION FROM THE SERVER
-    """
-    def proof_of_work(self, block):
-        block_string = json.dumps(block, sort_keys=True)
-        proof = 0
-        while self.valid_proof(block_string, proof) is False:
-            proof += 1
-        # return proof
-        return proof
-    """
-
     @staticmethod
     def valid_proof(block_string, proof):
         guess = f'{block_string}{proof}'.encode()
@@ -81,9 +70,6 @@ def mine():
     # Run the proof of work algorithm to get the next proof
     # proof = blockchain.proof_of_work(blockchain.last_block)
 
-
-    miner_id = data['id']
-
     block_string = json.dumps(blockchain.last_block)
     previous_hash = blockchain.hash(blockchain.last_block)
     proof = miner.proof_of_work(block_string)
@@ -103,25 +89,6 @@ def mine():
         'message': f'Proof is not valid! Coins: {my_coins}'
     }
     return jsonify(response), 400
-
-    """
-    data = request.get_json()
-    proof = data['proof']
-
-    if 'proof' in data and 'id' in data:
-        pass
-
-    # Forge the new Block by adding it to the chain with the proof
-    previous_hash = blockchain.hash(blockchain.last_block)
-    block = blockchain.new_block(proof, previous_hash)
-
-    response = {
-        # TODO: Send a JSON response with the new block
-        'new_block': block
-    }
-
-    return jsonify(response), 200
-    """
 
 
 @app.route('/chain', methods=['GET'])
@@ -146,4 +113,4 @@ def last_block():
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 
-# folder here
+
